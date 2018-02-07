@@ -18,11 +18,15 @@ public class TodoManager {
 
     public void create(Todo todo) {
         if(todo == null) {
-            throw new IllegalArgumentException("todo can't null");
+            throw new IllegalArgumentException("todo is null");
         }
 
         if(todo.getTitle() == null) {
-            throw new IllegalArgumentException("todo can't null");
+            throw new IllegalArgumentException("title is null");
+        }
+
+        if(todo.getTitle().length() > 50) {
+            throw new IllegalArgumentException("title_길이는 50자를 초과할 수 없습니다.");
         }
 
         todoRepository.store(todo);

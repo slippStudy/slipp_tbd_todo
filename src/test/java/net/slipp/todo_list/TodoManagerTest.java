@@ -107,6 +107,18 @@ public class TodoManagerTest {
         todoManager.create(todo);
     }
 
+    @Test(expected=IllegalArgumentException.class)
+    public void title_길이가_50_이상이면_IAE던지는_지_확인 () {
+        String TITLE = "오십자가넘는타이틀입니다.오십자가넘는타이틀입니다.오십자가넘는타이틀입니다.오십자가넘는타이틀입니다.오십자가넘는타이틀입니다.오십자가넘는타이틀입니다.";
+        String CONTENT = "CONTENT";
+
+        Todo todo = new Todo();
+        todo.setTitle(TITLE);
+        todo.setContent(CONTENT);
+
+        todoManager.create(todo);
+    }
+
 
     private static class MockTodoRepository extends TodoRepository {
 
