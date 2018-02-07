@@ -45,7 +45,7 @@ public class TodoManagerTest {
 
 
     @Test
-    public void 정상똥작_확인 () {
+    public void 전달받은_Todo를_TodoRepository_store에_전달하는_지_확인 () {
 
         String TITLE = "TITLE";
         String CONTENT = "CONTENT";
@@ -54,11 +54,11 @@ public class TodoManagerTest {
         todo.setTitle(TITLE);
         todo.setContent(CONTENT);
 
-        Todo actual = todoManager.create(todo);
+        todoManager.create(todo);
+
+        Todo actual = MockTodoRepository.passedTodo;
 
         assertNotNull(actual);
-
-        assertEquals(MockTodoRepository.getLastCreatedId(), actual.getId());
         assertEquals(TITLE, actual.getTitle());
         assertEquals(CONTENT, actual.getContent());
 
@@ -66,37 +66,36 @@ public class TodoManagerTest {
     }
 
 
-
-    @Test
-    public void title이_null일경우_빈문자열로_대치되는_지_확인 () {
+    @Test(expected=IllegalArgumentException.class)
+    public void TodoRepository_store_호출_시에_IAE를_던지면_그대로_IAE_던지는_지_확인 () {
 
         String TITLE = "TITLE";
         String CONTENT = "CONTENT";
 
         Todo todo = new Todo();
-        todo.setTitle(NULL); // <<<<<<<<<<<<<<<<<<<<<<<<<<<
+        todo.setTitle(TITLE);
         todo.setContent(CONTENT);
 
-        Todo actual = todoManager.create(todo);
 
-        assertEquals(TodoManager.DEFAULT_TITLE, actual.getTitle()); // <<<<<<<<<<<<<<<<<<<<<<<<<
+        MockTodoRepository.exception = new IllegalArgumentException();
+
+        todoManager.create(todo);
 
     }
 
 
-
     private static class MockTodoRepository extends TodoRepository {
 
-        public static final int ID = 10;
+        private static Todo passedTodo;
+        private static Exception exception;
+
         @Override
-        public Todo save(Todo todo) {
-            todo.setId(ID);
+        public Todo store(Todo todo) throws IllegalArgumentException {
+            if(exception!=null && exception.getClass()==IllegalArgumentException.class) { throw (IllegalArgumentException)exception; }
+            passedTodo = todo;
             return todo;
         }
 
-        public static int getLastCreatedId() {
-            return ID;
-        }
     }
 
 
