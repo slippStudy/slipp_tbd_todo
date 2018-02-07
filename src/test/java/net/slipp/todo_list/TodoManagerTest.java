@@ -1,5 +1,6 @@
 package net.slipp.todo_list;
 
+import net.slipp.exception.RepositoryFailedException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -63,23 +64,6 @@ public class TodoManagerTest {
         assertEquals(TITLE, actual.getTitle());
         assertEquals(CONTENT, actual.getContent());
 
-
-    }
-
-    @Test(expected=IllegalArgumentException.class)
-    public void TodoRepository_store_호출_시에_IAE를_던지면_그대로_IAE_던지는_지_확인 () {
-
-        String TITLE = "TITLE";
-        String CONTENT = "CONTENT";
-
-        Todo todo = new Todo();
-        todo.setTitle(TITLE);
-        todo.setContent(CONTENT);
-
-
-        MockTodoRepository.exception = new IllegalArgumentException();
-
-        todoManager.create(todo);
 
     }
 
@@ -195,14 +179,47 @@ public class TodoManagerTest {
         assertNull(actual);
     }
 
+    @Test(expected=IllegalArgumentException.class)
+    public void TodoRepository_store_호출_시에_IAE를_던지면_그대로_IAE_던지는_지_확인 () {
+
+        String TITLE = "TITLE";
+        String CONTENT = "CONTENT";
+
+        Todo todo = new Todo();
+        todo.setTitle(TITLE);
+        todo.setContent(CONTENT);
+
+
+        MockTodoRepository.exception = new IllegalArgumentException();
+
+        todoManager.create(todo);
+
+    }
+
+    @Test(expected=RuntimeException.class)
+    public void TodoRepository_store_호출_시에_RepositoryFailedException을_던지면_RuntimeException_던지는_지_확인 () {
+        String TITLE = "TITLE";
+        String CONTENT = "CONTENT";
+
+        Todo todo = new Todo();
+        todo.setTitle(TITLE);
+        todo.setContent(CONTENT);
+
+
+        MockTodoRepository.exception = new RepositoryFailedException();
+
+        todoManager.create(todo);
+    }
+
     private static class MockTodoRepository extends TodoRepository {
 
         private static Todo passedTodo;
         private static Exception exception;
 
         @Override
-        public Todo store(Todo todo) throws IllegalArgumentException {
+        public Todo store(Todo todo) throws IllegalArgumentException, RepositoryFailedException {
             if(exception!=null && exception.getClass()==IllegalArgumentException.class) { throw (IllegalArgumentException)exception; }
+            if(exception!=null && exception.getClass()==RepositoryFailedException.class) { throw (RepositoryFailedException)exception; }
             passedTodo = todo;
             return todo;
         }

@@ -1,5 +1,6 @@
 package net.slipp.todo_list;
 
+import net.slipp.exception.RepositoryFailedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -39,12 +40,11 @@ public class TodoManager {
 
         todo.setId(-1);
 
-        todoRepository.store(todo);
-    }
-
-    // TODO : remove. 개발 전에 spring DI가 제대로 동작하는 지 확인하기 위한 메소드
-    public void dum() {
-        todoRepository.store(null);
+        try {
+            todoRepository.store(todo);
+        } catch (RepositoryFailedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
