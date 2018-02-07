@@ -161,6 +161,26 @@ public class TodoManagerTest {
         assertEquals("", actual.getContent());
     }
 
+    @Test
+    public void 파라미터가_비정상일_때_TodoRepository_store_호출안하는_지_확인() {
+        String TITLE = null;
+        String CONTENT = null;
+
+        Todo todo = new Todo();
+        todo.setTitle(TITLE);
+        todo.setContent(CONTENT);
+
+        try {
+            todoManager.create(todo);
+        } catch (IllegalArgumentException e) {
+            //
+        }
+
+        Todo actual = MockTodoRepository.passedTodo;
+
+        assertNull(actual);
+    }
+
     private static class MockTodoRepository extends TodoRepository {
 
         private static Todo passedTodo;
