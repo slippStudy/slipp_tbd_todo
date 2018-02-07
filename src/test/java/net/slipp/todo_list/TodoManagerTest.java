@@ -83,6 +83,17 @@ public class TodoManagerTest {
 
     }
 
+    @Test
+    public void id를_minus1로_설정하는_지_확인 () {
+
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void Todo가_null일때_IAE던지는_지_확인 () {
+        Todo todo = null;
+        todoManager.create(todo);
+    }
+
 
     private static class MockTodoRepository extends TodoRepository {
 

@@ -17,6 +17,9 @@ public class TodoManager {
 
 
     public void create(Todo todo) {
+        if(todo == null) {
+            throw new IllegalArgumentException("todo can't null");
+        }
 
         if(todo.getTitle()==null) { todo.setTitle(DEFAULT_TITLE); }
         todoRepository.store(todo);
