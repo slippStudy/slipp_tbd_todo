@@ -16,11 +16,25 @@ public class TodoManager {
     private TodoRepository todoRepository;
 
 
-    public void create(Todo todo) {
-
-        if(todo.getTitle()==null) { todo.setTitle(DEFAULT_TITLE); }
-        todoRepository.store(todo);
+  public void create(Todo todo) {
+    if (todo == null) {
+      throw new IllegalArgumentException();
     }
+    if (todo.getTitle() == null) {
+      // todo.setTitle(DEFAULT_TITLE);
+      throw new IllegalArgumentException();
+    }
+    if (todo.getTitle().length() >= 50) {
+      throw new IllegalArgumentException();
+    }
+    if (todo.getContent() == null) {
+      todo.setContent(EMPTY_STRING);
+    }
+    if (todo.getContent().length() >= 500) {
+      throw new IllegalArgumentException();
+    }
+    todoRepository.store(todo);
+  }
 
     // TODO : remove. 개발 전에 spring DI가 제대로 동작하는 지 확인하기 위한 메소드
     public void dum() {
