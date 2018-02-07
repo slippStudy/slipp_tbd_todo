@@ -20,7 +20,8 @@ public class TodoManagerTest {
 
     @Before
     public void setUp() throws Exception {
-
+        MockTodoRepository.passedTodo = null;
+        MockTodoRepository.exception = null;
     }
 
     @After
@@ -91,6 +92,18 @@ public class TodoManagerTest {
     @Test(expected = IllegalArgumentException.class)
     public void Todo가_null일때_IAE던지는_지_확인 () {
         Todo todo = null;
+        todoManager.create(todo);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void title이_null일때_IAE던지는_지_확인 () {
+        String TITLE = null;
+        String CONTENT = "CONTENT";
+
+        Todo todo = new Todo();
+        todo.setTitle(TITLE);
+        todo.setContent(CONTENT);
+
         todoManager.create(todo);
     }
 
