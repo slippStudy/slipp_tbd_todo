@@ -211,6 +211,21 @@ public class TodoManagerTest {
         todoManager.create(todo);
     }
 
+    @Test(expected = RuntimeException.class)
+    public void TodoRepository_store_호출_시에_RuntimeException을_던지면_그대로_RuntimeException_던지는_지_확인 () {
+        String TITLE = "TITLE";
+        String CONTENT = "CONTENT";
+
+        Todo todo = new Todo();
+        todo.setTitle(TITLE);
+        todo.setContent(CONTENT);
+
+
+        MockTodoRepository.exception = new RuntimeException();
+
+        todoManager.create(todo);
+    }
+
     private static class MockTodoRepository extends TodoRepository {
 
         private static Todo passedTodo;
@@ -220,6 +235,7 @@ public class TodoManagerTest {
         public Todo store(Todo todo) throws IllegalArgumentException, RepositoryFailedException {
             if(exception!=null && exception.getClass()==IllegalArgumentException.class) { throw (IllegalArgumentException)exception; }
             if(exception!=null && exception.getClass()==RepositoryFailedException.class) { throw (RepositoryFailedException)exception; }
+            if(exception!=null && exception.getClass()==RuntimeException.class) { throw (RuntimeException)exception; }
             passedTodo = todo;
             return todo;
         }
