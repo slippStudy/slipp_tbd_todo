@@ -1,10 +1,10 @@
 package net.slipp.todo_list;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.context.annotation.Bean;
@@ -12,13 +12,13 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import static java.util.Objects.nonNull;
 import static org.junit.Assert.*;
 
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import net.slipp.todo_list.exception.RepositoryFailedException;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { AppConfig.class, TodoManagerTest.MockBeanConfig.class } )
+@ContextConfiguration(classes = { AppConfig.class, TodoManagerTest.MockBeanConfig.class })
 public class TodoManagerTest {
 
     @Before
@@ -32,7 +32,6 @@ public class TodoManagerTest {
     public void tearDown() throws Exception {
 
     }
-
 
     private static final String NULL = null;
 
@@ -52,7 +51,7 @@ public class TodoManagerTest {
     // 정상 동작 TC
     ////////////////////////////////////////
     @Test
-    public void 전달받은_Todo를_TodoRepository_store에_전달하는_지_확인 () {
+    public void 전달받은_Todo를_TodoRepository_store에_전달하는_지_확인() {
         // given
         Todo todo = TodoMockUtil.buildTodo();
 
@@ -62,10 +61,10 @@ public class TodoManagerTest {
 
         // then
         assertNotNull(actual);
+        assertSame(todo, actual);
         assertEquals(TodoMockUtil.TITLE, actual.getTitle());
         assertEquals(TodoMockUtil.CONTENT, actual.getContent());
     }
-
 
     // create 호출 될 때 mock으로 이상한 id를 넣는 테스트 추가
     @Test
@@ -76,10 +75,9 @@ public class TodoManagerTest {
         // when
         todoManager.create(todo);
         Todo actual = MockTodoRepository.passedTodo;
-        final int EXPECTED_ID_FOR_CREATION = -1;
 
         // then
-        assertEquals(EXPECTED_ID_FOR_CREATION, actual.getId());
+        assertEquals(TodoManager.DEFAULT_ID_FOR_CREATION, actual.getId());
     }
 
     ////////////////////////////////////////
@@ -92,7 +90,6 @@ public class TodoManagerTest {
 
         // when
         todoManager.create(nullTodo);
-
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -107,8 +104,8 @@ public class TodoManagerTest {
     @Test(expected = IllegalArgumentException.class)
     public void title_길이가_50_이상이면_IAE던지는_지_확인() throws Exception {
         // given
-        String tooMuchLongTitle =
-                IntStream.range(10, 30).mapToObj(String::valueOf).collect(Collectors.joining());
+        final int TITLE_LEN = TodoValidator.MAX_TITLE_LENGTH + 1;
+        String tooMuchLongTitle = RandomStringUtils.randomAlphabetic(TITLE_LEN);
 
         Todo todo = TodoMockUtil.buildTodoWithTitle(tooMuchLongTitle);
 
@@ -119,8 +116,8 @@ public class TodoManagerTest {
     @Test(expected = IllegalArgumentException.class)
     public void content_길이가_500_이상이면_IAE던지는_지_확인() throws Exception {
         // given
-        String tooMuchLongContent =
-                IntStream.range(100, 300).mapToObj(String::valueOf).collect(Collectors.joining());
+        final int CONTENT_LEN = TodoValidator.MAX_CONTENT_LENGTH + 1;
+        String tooMuchLongContent = RandomStringUtils.randomAlphabetic(CONTENT_LEN);
 
         Todo todo = TodoMockUtil.buildTodoWithContent(tooMuchLongContent);
 
@@ -135,7 +132,6 @@ public class TodoManagerTest {
 
         // when
         todoManager.create(todo);
-
         Todo actual = MockTodoRepository.passedTodo;
 
         final String EMPTY_STRING_FOR_NULL_CONTENTS = "";
@@ -143,24 +139,26 @@ public class TodoManagerTest {
         assertEquals(EMPTY_STRING_FOR_NULL_CONTENTS, actual.getContent());
     }
 
-    // 위에서 IAE 예외 던지는 것과 비슷한 테스트?
     @Test
     public void 파라매터가_비정상일_때_TodoRepository_store_호출안하는_지_확인() throws Exception {
         // given
         Todo todo = TodoMockUtil.buildTodoWithTitle(null);
 
         // when
-        todoManager.create(todo);
-
-        // then
-        assertFalse(MockTodoRepository.isCalledStoreMethod);
+        try {
+            todoManager.create(todo);
+        } catch (Exception actual) {
+            assertEquals(IllegalArgumentException.class, actual.getClass());
+            // then
+            assertFalse(MockTodoRepository.isCalledStoreMethod);
+        }
     }
 
     ////////////////////////////////////////
     // Repository 예외 처리 TC
     ////////////////////////////////////////
-    @Test(expected=IllegalArgumentException.class)
-    public void TodoRepository_store_호출_시에_IAE를_던지면_그대로_IAE_던지는_지_확인 () {
+    @Test(expected = IllegalArgumentException.class)
+    public void TodoRepository_store_호출_시에_IAE를_던지면_그대로_IAE_던지는_지_확인() {
         // given
         Todo todo = TodoMockUtil.buildTodo();
 
@@ -176,7 +174,7 @@ public class TodoManagerTest {
         Todo todo = TodoMockUtil.buildTodo();
 
         // when
-//        MockTodoRepository.exception = new RepositoryFailedException();
+        MockTodoRepository.exception = new RepositoryFailedException();
         todoManager.create(todo);
     }
 
@@ -193,7 +191,6 @@ public class TodoManagerTest {
         // then
     }
 
-
     ////////////////////////////////////////
     // Repository 반환 확인 처리 TC
     ////////////////////////////////////////
@@ -204,7 +201,7 @@ public class TodoManagerTest {
 
         // when
         todoManager.create(todo);
-        Todo actual = MockTodoRepository.passedTodo;
+        Todo actual = MockTodoRepository.returnedTodo;
 
         // then
         assertNotNull(actual);
@@ -218,7 +215,7 @@ public class TodoManagerTest {
 
         // when
         todoManager.create(todo);
-        Todo actual = MockTodoRepository.passedTodo;
+        Todo actual = MockTodoRepository.returnedTodo;
 
         // then
         assertTrue(actual.getId() > 0);
@@ -240,25 +237,40 @@ public class TodoManagerTest {
         assertEquals(TodoMockUtil.CONTENT, actual.getContent());
     }
 
-
-
-
     private static class MockTodoRepository extends TodoRepository {
 
         private static Todo passedTodo;
-        private static Exception exception;
+        private static Todo returnedTodo;
+        private static Object exception;
         private static boolean isCalledStoreMethod = false;
+        private static int dummyNewId = 12;
 
         @Override
-        public Todo store(Todo todo) throws Exception {
+        public Todo store(Todo todo) throws RepositoryFailedException {
             isCalledStoreMethod = true;
-
-            if(exception!=null) { throw exception; }
             passedTodo = todo;
-            return todo;
+
+            if (nonNull(exception)) {
+                if (exception.getClass() == IllegalArgumentException.class) {
+                    throw (IllegalArgumentException) exception;
+                }
+
+                if (exception.getClass() == RepositoryFailedException.class) {
+                    throw (RepositoryFailedException) exception;
+                }
+
+                if (exception.getClass() == RuntimeException.class) {
+                    throw (RuntimeException) exception;
+                }
+            }
+
+            returnedTodo = new Todo();
+            returnedTodo.setTitle(passedTodo.getTitle());
+            returnedTodo.setContent(passedTodo.getContent());
+            returnedTodo.setId(dummyNewId);
+
+            return returnedTodo;
         }
 
     }
-
-
 }
