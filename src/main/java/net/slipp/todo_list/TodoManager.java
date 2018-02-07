@@ -16,16 +16,15 @@ public class TodoManager {
     private TodoRepository todoRepository;
 
 
-    public Todo create(Todo todo) {
+    public void create(Todo todo) {
 
         if(todo.getTitle()==null) { todo.setTitle(DEFAULT_TITLE); }
-        todo = todoRepository.save(todo);
-        return todo;
+        todoRepository.store(todo);
     }
 
     // TODO : remove. 개발 전에 spring DI가 제대로 동작하는 지 확인하기 위한 메소드
     public void dum() {
-        todoRepository.save(null);
+        todoRepository.store(null);
     }
 
 }
