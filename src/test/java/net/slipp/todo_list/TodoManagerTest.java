@@ -85,7 +85,21 @@ public class TodoManagerTest {
 
     @Test
     public void id를_minus1로_설정하는_지_확인 () {
+        String TITLE = "TITLE";
+        String CONTENT = "CONTENT";
 
+        Todo todo = new Todo();
+        todo.setTitle(TITLE);
+        todo.setContent(CONTENT);
+
+        todoManager.create(todo);
+
+        Todo actual = MockTodoRepository.passedTodo;
+
+        assertNotNull(actual);
+        assertEquals(-1, actual.getId());
+        assertEquals(TITLE, actual.getTitle());
+        assertEquals(CONTENT, actual.getContent());
     }
 
     @Test(expected = IllegalArgumentException.class)

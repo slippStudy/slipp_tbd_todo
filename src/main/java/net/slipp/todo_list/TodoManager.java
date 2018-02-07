@@ -37,7 +37,7 @@ public class TodoManager {
             throw new IllegalArgumentException("content 길이는 500자 이상일 수 없습니다.");
         }
 
-
+        todo.setId(-1);
 
         todoRepository.store(todo);
     }
