@@ -29,4 +29,24 @@ public class Todo {
     public void setContent(String content) {
         this.content = content;
     }
+
+    public static Todo create(String title, String content) {
+    		Todo todo = new Todo();
+    		todo.setTitle(title);
+    		todo.setContent(content);
+    		return todo;
+    }
+
+    private static Todo create(int id, String title, String content) {
+    		Todo todo = new Todo();
+    		todo.setId(id);
+    		todo.setTitle(title);
+    		todo.setContent(content);
+		return todo;
+	}
+
+	public Todo newClone() {
+		return Todo.create(id, title, content);
+	}
+
 }
