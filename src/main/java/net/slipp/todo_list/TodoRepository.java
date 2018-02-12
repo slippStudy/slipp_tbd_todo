@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class TodoRepository {
 
-    public Todo store(Todo todo) throws IllegalArgumentException { return null; }
+    public Todo store(Todo todo) throws RuntimeException { return null; }
 
 
 }
