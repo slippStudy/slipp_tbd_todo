@@ -2,6 +2,7 @@ package net.slipp.todo_list;
 
 
 public class Todo {
+
     private int id;
     private String title;
     private String content;
