@@ -56,7 +56,7 @@ public class TodoManagerTest {
 
 
     @Test
-    public void 전달받은_Todo를_TodoManager_create가_정상_동작하는지_확인 () { //<------------------- Method명 변경
+    public void 전달받은_Todo를_TodoManager_create가_정상_동작하는지_확인 () {
 
         String TITLE = "TITLE";
         String CONTENT = "CONTENT";
@@ -77,7 +77,7 @@ public class TodoManagerTest {
     }
 
     @Test
-    public void NotiManager_notify에서_RuntimeException이_발생할_경우_RuntimeException을_무시하는지_확인(){
+    public void NotiManager_notify_호츨_후_RuntimeException_날때_무시하는지_확인(){
 
         String TITLE = "TITLE";
         String CONTENT = "CONTENT";
@@ -95,6 +95,52 @@ public class TodoManagerTest {
         assertNotNull(actual);
         assertEquals(TITLE, actual.getTitle());
         assertEquals(CONTENT, actual.getContent());
+
+    }
+
+    @Test
+    public void NotiManager_notify_TodoRepository_store_호출_성공_후_notify_호출하는지_확인(){
+
+        String TITLE = "TITLE";
+        String CONTENT = "CONTENT";
+
+        Todo todo = new Todo();
+        todo.setTitle(TITLE);
+        todo.setContent(CONTENT);
+
+        todoManager.create(todo);
+
+        Todo actual = MockTodoRepository.passedTodo;
+        String resTitle = MockNotiManager.passedTitle;
+
+        assertNotNull(actual);
+        assertEquals(TITLE, actual.getTitle());
+        assertEquals(CONTENT, actual.getContent());
+
+        assertEquals(todo.getTitle(), resTitle);    // <---------------------------------
+
+    }
+
+    @Test
+    public void NotiManager_notify_TodoRepository_store_호출_실패_시_notify_호출_안하는지_확인(){
+
+        String TITLE = "TITLE";
+        String CONTENT = "CONTENT";
+
+        Todo todo = new Todo();
+        todo.setTitle(TITLE);
+        todo.setContent(CONTENT);
+
+        todoManager.create(todo);
+
+        Todo actual = MockTodoRepository.passedTodo;
+        String resTitle = MockNotiManager.passedTitle;
+
+        assertNotNull(actual);
+        assertEquals(TITLE, actual.getTitle());
+        assertEquals(CONTENT, actual.getContent());
+
+        assertNotEquals(resTitle, NotiManager.EMPTY_STRING);    // <---------------------------------
 
     }
 
@@ -280,12 +326,14 @@ public class TodoManagerTest {
     private static class MockNotiManager extends NotiManager {
 
         private static Exception exception;
+        private static String passedTitle = NotiManager.EMPTY_STRING;
 
         @Override
         public void notify(String title) throws RuntimeException {
 
             if(exception!=null && exception.getClass()==RuntimeException.class) { throw (RuntimeException)exception; }
 
+            passedTitle = title;
         }
     }
 }
