@@ -131,7 +131,7 @@ public class TodoManagerTest {
         todo.setTitle(TITLE);
         todo.setContent(CONTENT);
 
-        MockNotiManager.exception = new RuntimeException();
+        MockTodoRepository.exception = new RuntimeException();
 
         try {
             todoManager.create(todo);
@@ -140,7 +140,7 @@ public class TodoManagerTest {
         }
 
         String resTitle = MockNotiManager.passedTitle;
-        assertNotEquals(resTitle, NotiManager.EMPTY_STRING);    // <---------------------------------
+        assertEquals(NotiManager.EMPTY_STRING, resTitle);    // <---------------------------------
 
     }
 
