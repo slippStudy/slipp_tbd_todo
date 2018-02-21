@@ -278,6 +278,23 @@ public class TodoManagerCreateTest {
 
     }
 
+    @Test
+    public void NotiManager_notify를_호출할때_title을_넘겨주는지() {
+        String TITLE = "TITLE";
+        String CONTENT = "CONTENT";
+
+        Todo todo = new Todo();
+        todo.setTitle(TITLE);
+        todo.setContent(CONTENT);
+
+        todoManager.create(todo);
+
+        String actual = MockNotiManager.passedTitle;
+
+        assertNotNull(actual);
+        assertEquals(todo.getTitle(), actual);
+    }
+
     private static class MockTodoRepository extends TodoRepository {
 
         private static Todo passedTodo;
