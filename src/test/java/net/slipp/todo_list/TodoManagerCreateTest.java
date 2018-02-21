@@ -254,6 +254,28 @@ public class TodoManagerCreateTest {
         assertEquals(TITLE, notifyTitle);
     }
 
+    @Test
+    public void store_실패_후_NotiManager_미호출_확인() {
+        String TITLE = "TITLE";
+        String CONTENT = "CONTENT";
+
+        Todo todo = new Todo();
+        todo.setTitle(TITLE);
+        todo.setContent(CONTENT);
+
+        MockTodoRepository.exception = new RuntimeException();
+
+        try {
+            todoManager.create(todo);
+        } catch (Exception e) {
+            // ignore
+        }
+
+        String notifyTitle = MockNotiManager.passedTitle;
+
+        assertNull(notifyTitle);
+    }
+
     @Test(expected = RuntimeException.class)
     public void NotiManager_notify_호출_시에_RuntimeException을_던지면_그대로_RuntimeException_던지는_지_확인 () {
         String TITLE = "TITLE";
