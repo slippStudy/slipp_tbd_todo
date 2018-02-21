@@ -254,9 +254,9 @@ public class TodoManagerCreateTest {
 
         todoManager.create(todo);
 
-        String actual = MockNotiManager.passedTitle;
+        boolean actual = MockNotiManager.isNotifyCalled;
 
-        assertNotNull(actual);
+        assertTrue(actual);
     }
 
     private static class MockTodoRepository extends TodoRepository {
@@ -278,10 +278,12 @@ public class TodoManagerCreateTest {
     }
 
     private static class MockNotiManager extends NotiManager {
+        private static boolean isNotifyCalled;
         private static String passedTitle;
         private static Exception exception;
 
         public void notify(String title) throws RuntimeException {
+            isNotifyCalled = true;
             passedTitle = title;
 
             if(exception != null) {
