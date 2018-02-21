@@ -23,6 +23,10 @@ public class TodoManagerTest {
     public void setUp() throws Exception {
         MockTodoRepository.passedTodo = null;
         MockTodoRepository.exception = null;
+
+        MockNotiManager.passedTitle = null;
+        MockNotiManager.notifyCounter = 0;
+        MockNotiManager.exception = null;
     }
 
     @After
@@ -42,6 +46,12 @@ public class TodoManagerTest {
         @Primary
         public TodoRepository todoRepository() {
             return new MockTodoRepository();
+        }
+
+        @Bean
+        @Primary
+        public NotiManager notiManager() {
+            return new MockNotiManager();
         }
     }
 
@@ -228,6 +238,79 @@ public class TodoManagerTest {
         todoManager.create(todo);
     }
 
+    @Test
+    public void validate_실패_시_notify가_호출되지_않는_것_확인() {
+
+        String TITLE = "TITLE";
+        String CONTENT = "CONTENT";
+
+        TITLE = NULL;               // <--------- ########
+        Todo todo = new Todo();
+        todo.setTitle(TITLE);
+        todo.setContent(CONTENT);
+
+        try {
+            todoManager.create(todo);
+            fail();
+        } catch (Exception e) {
+            // ignore
+        }
+
+        assertEquals(0, MockNotiManager.notifyCounter);
+    }
+
+    @Test
+    public void todoRepository_store_실패_시_notify_메소드가_호출되지_않는지_확인() {
+        String TITLE = "TITLE";
+        String CONTENT = "CONTENT";
+
+        Todo todo = new Todo();
+        todo.setTitle(TITLE);
+        todo.setContent(CONTENT);
+
+        MockTodoRepository.exception = new RepositoryFailedException();     // <--------- ########
+        try {
+            todoManager.create(todo);
+            fail();
+        } catch (Exception e) {
+            // ignore
+        }
+
+        assertEquals(0, MockNotiManager.notifyCounter);
+    }
+
+    @Test
+    public void todoRepository_store_성공_시_notify_메소드가_호출되면서_파라미터에_todo_title이_동일하게_오는지_확인() {
+        String TITLE = "TITLE";
+        String CONTENT = "CONTENT";
+
+        Todo todo = new Todo();
+        todo.setTitle(TITLE);
+        todo.setContent(CONTENT);
+
+        todoManager.create(todo);
+
+        assertEquals(1, MockNotiManager.notifyCounter);
+        assertEquals(todo.getTitle(), MockNotiManager.passedTitle);
+    }
+
+    @Test
+    public void notify_메소드에서_RuntimeException_발생_시_TodoManager는_무시한다() {
+        String TITLE = "TITLE";
+        String CONTENT = "CONTENT";
+
+        Todo todo = new Todo();
+        todo.setTitle(TITLE);
+        todo.setContent(CONTENT);
+
+        MockNotiManager.exception = new RuntimeException();
+        try {
+            todoManager.create(todo);
+        } catch (Exception e) {
+            fail();
+        }
+    }
+
     private static class MockTodoRepository extends TodoRepository {
 
         private static Todo passedTodo;
@@ -243,8 +326,22 @@ public class TodoManagerTest {
 
             return todo;
         }
-
     }
 
+    private static class MockNotiManager extends NotiManager {
+
+        private static String passedTitle;
+        private static int notifyCounter = 0;
+        private static Exception exception;
+
+        @Override
+        public void notify(String title) {
+            if (exception != null) {
+                throw new RuntimeException();
+            }
+            notifyCounter++;
+            passedTitle = title;
+        }
+    }
 
 }
