@@ -30,7 +30,11 @@ public class TodoManager {
 
         try {
             todoRepository.store(todo);
-            notiManager.notify(todo.getTitle());
+            try {
+                notiManager.notify(todo.getTitle());
+            } catch (RuntimeException re) {
+                // ignore
+            }
         } catch (RepositoryFailedException e) {
             throw new RuntimeException(e);
         }

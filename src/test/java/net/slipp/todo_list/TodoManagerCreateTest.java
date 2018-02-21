@@ -295,6 +295,20 @@ public class TodoManagerCreateTest {
         assertEquals(todo.getTitle(), actual);
     }
 
+    @Test
+    public void NotiManager_notify를_호출하여_RuntimeException이_발생했을때_무시하는지() {
+        String TITLE = "TITLE";
+        String CONTENT = "CONTENT";
+
+        Todo todo = new Todo();
+        todo.setTitle(TITLE);
+        todo.setContent(CONTENT);
+
+        MockNotiManager.exception = new RuntimeException();
+
+        todoManager.create(todo);
+    }
+
     private static class MockTodoRepository extends TodoRepository {
 
         private static Todo passedTodo;
