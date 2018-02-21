@@ -235,10 +235,12 @@ public class TodoManagerTest {
 
         @Override
         public Todo store(Todo todo) throws IllegalArgumentException, RepositoryFailedException {
+            passedTodo = todo;
+
             if(exception!=null && exception.getClass()==IllegalArgumentException.class) { throw (IllegalArgumentException)exception; }
             if(exception!=null && exception.getClass()==RepositoryFailedException.class) { throw (RepositoryFailedException)exception; }
             if(exception!=null && exception.getClass()==RuntimeException.class) { throw (RuntimeException)exception; }
-            passedTodo = todo;
+
             return todo;
         }
 
