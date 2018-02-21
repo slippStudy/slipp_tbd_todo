@@ -23,6 +23,10 @@ public class TodoManagerTest {
     public void setUp() throws Exception {
         MockTodoRepository.passedTodo = null;
         MockTodoRepository.exception = null;
+        MockTodoRepository.isSuccess = false;
+        MockNotiManager.isSuccess = false;
+        MockNotiManager.isCalled = false;
+        MockNotiManager.exception = null;
     }
 
     @After
@@ -245,12 +249,14 @@ public class TodoManagerTest {
 
         todoManager.create(todo);
 
-        boolean isSuccessStore = MockTodoRepository.isSuccess;
-        boolean isCalledNotify = MockNotiManager.isCalled; // <------------------
+        boolean isSuccessStore = MockTodoRepository.isSuccess;   // <------------------
+        boolean isCalledNotify = MockNotiManager.isCalled;       // <------------------
+        boolean isSuccessNotify = MockNotiManager.isSuccess;     // <------------------
         Todo actual = MockTodoRepository.passedTodo;
 
-        assertTrue(isSuccessStore); // <------------------
-        assertTrue(isCalledNotify); // <------------------
+        assertTrue(isSuccessStore);   // <------------------
+        assertTrue(isCalledNotify);   // <------------------
+        assertTrue(isSuccessNotify);  // <------------------
 
         assertNotNull(actual);
         assertEquals(TITLE, actual.getTitle());
@@ -275,11 +281,13 @@ public class TodoManagerTest {
         }
 
         boolean isSuccessStore = MockTodoRepository.isSuccess;
-        boolean isCalledNotify = MockNotiManager.isCalled; // <------------------
+        boolean isCalledNotify = MockNotiManager.isCalled;
+        boolean isSuccessNotify = MockNotiManager.isSuccess;
         Todo actual = MockTodoRepository.passedTodo;
 
-        assertFalse(isSuccessStore); // <------------------
-        assertFalse(isCalledNotify); // <------------------
+        assertFalse(isSuccessStore);  // <------------------
+        assertFalse(isCalledNotify);  // <------------------
+        assertFalse(isSuccessNotify); // <------------------
 
         assertNotNull(actual);
         assertEquals(TITLE, actual.getTitle());
@@ -301,7 +309,7 @@ public class TodoManagerTest {
 
         boolean isSuccessStore = MockTodoRepository.isSuccess;
         boolean isCalledNotify = MockNotiManager.isCalled;
-        boolean isSuccessNotify = MockNotiManager.isSuccess; // <------------------
+        boolean isSuccessNotify = MockNotiManager.isSuccess;
         Todo actual = MockTodoRepository.passedTodo;
 
         assertTrue(isSuccessStore);
@@ -317,7 +325,7 @@ public class TodoManagerTest {
 
         private static Todo passedTodo;
         private static Exception exception;
-        private static boolean isSuccess = false;
+        private static boolean isSuccess;
 
         @Override
         public Todo store(Todo todo) throws IllegalArgumentException, RepositoryFailedException {
@@ -337,8 +345,8 @@ public class TodoManagerTest {
 
     private static class MockNotiManager extends NotiManager {
         private static String passedTitle;
-        private static boolean isCalled = false;
-        private static boolean isSuccess = false;
+        private static boolean isCalled;
+        private static boolean isSuccess;
         private static Exception exception;
 
         @Override
