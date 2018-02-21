@@ -336,10 +336,10 @@ public class TodoManagerTest {
 
         @Override
         public void notify(String title) {
+            notifyCounter++;
             if (exception != null) {
                 throw new RuntimeException();
             }
-            notifyCounter++;
             passedTitle = title;
         }
     }
