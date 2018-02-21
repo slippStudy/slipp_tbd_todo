@@ -77,7 +77,7 @@ public class TodoManagerTest {
     }
 
     @Test
-    public void NotiManager_notify_호츨_후_RuntimeException_날때_무시하는지_확인(){
+    public void TodoManager_Create_정상_수행시_notify호출시_RuntimeException을_무시하는지_확인(){
 
         String TITLE = "TITLE";
         String CONTENT = "CONTENT";
@@ -99,7 +99,7 @@ public class TodoManagerTest {
     }
 
     @Test
-    public void NotiManager_notify_TodoRepository_store_호출_성공_후_notify_호출하는지_확인(){
+    public void TodoManager_Create_정상_수행_후_notify호출이_정상적으로_호출되는지_확인(){
 
         String TITLE = "TITLE";
         String CONTENT = "CONTENT";
@@ -122,7 +122,7 @@ public class TodoManagerTest {
     }
 
     @Test
-    public void NotiManager_notify_TodoRepository_store_호출_실패_시_notify_호출_안하는지_확인(){
+    public void TodoManager_Create_에서_Exception발생시_NotiManager_notify가_실행안되는지_확인(){
 
         String TITLE = "TITLE";
         String CONTENT = "CONTENT";
@@ -131,15 +131,15 @@ public class TodoManagerTest {
         todo.setTitle(TITLE);
         todo.setContent(CONTENT);
 
-        todoManager.create(todo);
+        MockNotiManager.exception = new RuntimeException();
 
-        Todo actual = MockTodoRepository.passedTodo;
+        try {
+            todoManager.create(todo);
+        } catch( RuntimeException e ){
+            //ignore
+        }
+
         String resTitle = MockNotiManager.passedTitle;
-
-        assertNotNull(actual);
-        assertEquals(TITLE, actual.getTitle());
-        assertEquals(CONTENT, actual.getContent());
-
         assertNotEquals(resTitle, NotiManager.EMPTY_STRING);    // <---------------------------------
 
     }
