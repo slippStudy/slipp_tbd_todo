@@ -1,6 +1,7 @@
 package net.slipp.todo_list;
 
 import net.slipp.exception.RepositoryFailedException;
+import net.slipp.notification.NotiManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,13 +17,16 @@ import static org.junit.Assert.*;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { AppConfig.class, TodoManagerTest.MockBeanConfig.class } )
-public class TodoManagerTest {
+@ContextConfiguration(classes = { AppConfig.class, TodoManagerCreateTest.MockBeanConfig.class } )
+public class TodoManagerCreateTest {
 
     @Before
     public void setUp() throws Exception {
         MockTodoRepository.passedTodo = null;
         MockTodoRepository.exception = null;
+
+        MockNotiManager.passedTitle = null;
+        MockNotiManager.exception = null;
     }
 
     @After
@@ -42,6 +46,12 @@ public class TodoManagerTest {
         @Primary
         public TodoRepository todoRepository() {
             return new MockTodoRepository();
+        }
+
+        @Bean
+        @Primary
+        public NotiManager notiManager() {
+            return new MockNotiManager();
         }
     }
 
@@ -228,6 +238,36 @@ public class TodoManagerTest {
         todoManager.create(todo);
     }
 
+    @Test
+    public void store_성공_후_NotiManager_호출_확인() {
+        String TITLE = "TITLE";
+        String CONTENT = "CONTENT";
+
+        Todo todo = new Todo();
+        todo.setTitle(TITLE);
+        todo.setContent(CONTENT);
+
+        todoManager.create(todo);
+
+        String notifyTitle = MockNotiManager.passedTitle;
+
+        assertEquals(TITLE, notifyTitle);
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void NotiManager_notify_호출_시에_RuntimeException을_던지면_그대로_RuntimeException_던지는_지_확인 () {
+        String TITLE = "TITLE";
+        String CONTENT = "CONTENT";
+
+        Todo todo = new Todo();
+        todo.setTitle(TITLE);
+        todo.setContent(CONTENT);
+
+        MockNotiManager.exception = new RuntimeException();
+
+        todoManager.create(todo);
+    }
+
     private static class MockTodoRepository extends TodoRepository {
 
         private static Todo passedTodo;
@@ -246,5 +286,17 @@ public class TodoManagerTest {
 
     }
 
+    private static class MockNotiManager extends NotiManager {
+
+        private static String passedTitle;
+        private static Exception exception;
+
+        @Override
+        public void notify(String title) {
+            passedTitle = title;
+            if(exception!=null && exception.getClass()==RuntimeException.class) { throw (RuntimeException)exception; }
+        }
+
+    }
 
 }

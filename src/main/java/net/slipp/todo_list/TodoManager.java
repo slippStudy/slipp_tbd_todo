@@ -1,6 +1,7 @@
 package net.slipp.todo_list;
 
 import net.slipp.exception.RepositoryFailedException;
+import net.slipp.notification.NotiManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +18,9 @@ public class TodoManager {
     @Autowired
     private TodoRepository todoRepository;
 
+    @Autowired
+    private NotiManager notiManager;
+
 
     public void create(Todo todo) {
 
@@ -26,6 +30,7 @@ public class TodoManager {
 
         try {
             todoRepository.store(todo);
+            notiManager.notify(todo.getTitle());
         } catch (RepositoryFailedException e) {
             throw new RuntimeException(e);
         }
