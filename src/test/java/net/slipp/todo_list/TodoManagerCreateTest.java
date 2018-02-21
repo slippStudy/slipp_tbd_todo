@@ -1,6 +1,5 @@
 package net.slipp.todo_list;
 
-import net.slipp.exception.RepositoryFailedException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,12 +11,17 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import static org.junit.Assert.*;
+import net.slipp.exception.RepositoryFailedException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { AppConfig.class, TodoManagerTest.MockBeanConfig.class } )
-public class TodoManagerTest {
+@ContextConfiguration(classes = { AppConfig.class, TodoManagerCreateTest.MockBeanConfig.class } )
+public class TodoManagerCreateTest {
 
     @Before
     public void setUp() throws Exception {
