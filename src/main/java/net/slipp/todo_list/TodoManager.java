@@ -12,12 +12,26 @@ public class TodoManager {
     static final String EMPTY_STRING = "";
     static final String DEFAULT_TITLE = EMPTY_STRING;
 
+    private static final int ID_BEFORE_CREATE = -1;
 
     @Autowired
     private TodoRepository todoRepository;
 
 
     public void create(Todo todo) {
+
+        validate(todo);
+
+        todo.setId(ID_BEFORE_CREATE);
+
+        try {
+            todoRepository.store(todo);
+        } catch (RepositoryFailedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void validate(Todo todo) {
         if(todo == null) {
             throw new IllegalArgumentException("todo is null");
         }
@@ -36,14 +50,6 @@ public class TodoManager {
 
         if(todo.getContent().length() >= 500) {
             throw new IllegalArgumentException("content 길이는 500자 이상일 수 없습니다.");
-        }
-
-        todo.setId(-1);
-
-        try {
-            todoRepository.store(todo);
-        } catch (RepositoryFailedException e) {
-            throw new RuntimeException(e);
         }
     }
 

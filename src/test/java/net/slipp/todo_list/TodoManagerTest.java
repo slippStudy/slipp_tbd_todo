@@ -73,6 +73,7 @@ public class TodoManagerTest {
         String CONTENT = "CONTENT";
 
         Todo todo = new Todo();
+        todo.setId(10); // <---------------------------
         todo.setTitle(TITLE);
         todo.setContent(CONTENT);
 
@@ -81,7 +82,7 @@ public class TodoManagerTest {
         Todo actual = MockTodoRepository.passedTodo;
 
         assertNotNull(actual);
-        assertEquals(-1, actual.getId());
+        assertEquals(-1, actual.getId()); // <-----------------
         assertEquals(TITLE, actual.getTitle());
         assertEquals(CONTENT, actual.getContent());
     }
@@ -94,9 +95,10 @@ public class TodoManagerTest {
 
     @Test(expected=IllegalArgumentException.class)
     public void title이_null일때_IAE던지는_지_확인 () {
-        String TITLE = null;
+        String TITLE = "TITLE";
         String CONTENT = "CONTENT";
 
+        TITLE = null; // <------------------------
         Todo todo = new Todo();
         todo.setTitle(TITLE);
         todo.setContent(CONTENT);
@@ -106,7 +108,7 @@ public class TodoManagerTest {
 
     @Test(expected=IllegalArgumentException.class)
     public void title_길이가_50_이상이면_IAE던지는_지_확인 () {
-        String TITLE = "오십자가넘는타이틀입니다.오십자가넘는타이틀입니다.오십자가넘는타이틀입니다.오십자가넘는타이틀입니다.오십자가넘는타이틀입니다.오십자가넘는타이틀입니다.";
+        String TITLE = "0123456789012345678901234567890123456789012345678901234";
         String CONTENT = "CONTENT";
 
         Todo todo = new Todo();
@@ -171,7 +173,7 @@ public class TodoManagerTest {
         try {
             todoManager.create(todo);
         } catch (IllegalArgumentException e) {
-            //
+            // ignore
         }
 
         Todo actual = MockTodoRepository.passedTodo;
