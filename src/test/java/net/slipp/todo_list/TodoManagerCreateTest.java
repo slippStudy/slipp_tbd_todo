@@ -259,6 +259,25 @@ public class TodoManagerCreateTest {
         assertTrue(actual);
     }
 
+    @Test
+    public void TodoRepository_store_호출하여_실패했을때_NotiManager_notify를_호출안_하는지() {
+        String TITLE = "TITLE";
+        String CONTENT = "CONTENT";
+
+        Todo todo = new Todo();
+        todo.setTitle(TITLE);
+        todo.setContent(CONTENT);
+
+        MockTodoRepository.exception = new IllegalArgumentException();
+
+        try {
+            todoManager.create(todo);
+        } catch (IllegalArgumentException iae) {
+            assertNull(MockNotiManager.passedTitle);
+        }
+
+    }
+
     private static class MockTodoRepository extends TodoRepository {
 
         private static Todo passedTodo;
