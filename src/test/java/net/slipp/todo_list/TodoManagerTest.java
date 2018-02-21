@@ -36,6 +36,9 @@ public class TodoManagerTest {
     @Autowired
     private TodoManager todoManager;
 
+    @Autowired
+    private NotiManager notiManager;
+
     @Configurable
     public static class MockBeanConfig {
         @Bean
@@ -43,11 +46,17 @@ public class TodoManagerTest {
         public TodoRepository todoRepository() {
             return new MockTodoRepository();
         }
+
+        @Bean
+        @Primary
+        public NotiManager notiManager() {
+            return new MockNotiManager();
+        }
     }
 
 
     @Test
-    public void 전달받은_Todo를_TodoRepository_store에_전달하는_지_확인 () {
+    public void 전달받은_Todo를_TodoManager_create가_정상_동작하는지_확인 () { //<------------------- Method명 변경
 
         String TITLE = "TITLE";
         String CONTENT = "CONTENT";
@@ -64,6 +73,28 @@ public class TodoManagerTest {
         assertEquals(TITLE, actual.getTitle());
         assertEquals(CONTENT, actual.getContent());
 
+
+    }
+
+    @Test
+    public void NotiManager_notify에서_RuntimeException이_발생할_경우_RuntimeException을_무시하는지_확인(){
+
+        String TITLE = "TITLE";
+        String CONTENT = "CONTENT";
+
+        Todo todo = new Todo();
+        todo.setTitle(TITLE);
+        todo.setContent(CONTENT);
+
+        MockNotiManager.exception = new RuntimeException();     // <------------------- NotiManager에 Exception을 던짐
+
+        todoManager.create(todo);
+
+        Todo actual = MockTodoRepository.passedTodo;
+
+        assertNotNull(actual);
+        assertEquals(TITLE, actual.getTitle());
+        assertEquals(CONTENT, actual.getContent());
 
     }
 
@@ -246,5 +277,15 @@ public class TodoManagerTest {
 
     }
 
+    private static class MockNotiManager extends NotiManager {
 
+        private static Exception exception;
+
+        @Override
+        public void notify(String title) throws RuntimeException {
+
+            if(exception!=null && exception.getClass()==RuntimeException.class) { throw (RuntimeException)exception; }
+
+        }
+    }
 }
