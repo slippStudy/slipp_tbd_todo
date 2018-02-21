@@ -27,6 +27,10 @@ public class TodoManagerCreateTest {
     public void setUp() throws Exception {
         MockTodoRepository.passedTodo = null;
         MockTodoRepository.exception = null;
+
+        MockNotiManager.isNotifyCalled = false;
+        MockNotiManager.passedTitle = null;
+        MockNotiManager.exception = null;
     }
 
     @After
@@ -40,12 +44,21 @@ public class TodoManagerCreateTest {
     @Autowired
     private TodoManager todoManager;
 
+    @Autowired
+    private NotiManager notiManager;
+
     @Configurable
     public static class MockBeanConfig {
         @Bean
         @Primary
         public TodoRepository todoRepository() {
             return new MockTodoRepository();
+        }
+
+        @Bean
+        @Primary
+        public NotiManager notiManager() {
+            return new MockNotiManager();
         }
     }
 
@@ -67,8 +80,6 @@ public class TodoManagerCreateTest {
         assertNotNull(actual);
         assertEquals(TITLE, actual.getTitle());
         assertEquals(CONTENT, actual.getContent());
-
-
     }
 
     @Test
@@ -232,6 +243,22 @@ public class TodoManagerCreateTest {
         todoManager.create(todo);
     }
 
+    @Test
+    public void TodoRepository_store_호출하여_성공했을때_NotiManager_notify를_호출_하는지() {
+        String TITLE = "TITLE";
+        String CONTENT = "CONTENT";
+
+        Todo todo = new Todo();
+        todo.setTitle(TITLE);
+        todo.setContent(CONTENT);
+
+        todoManager.create(todo);
+
+        String actual = MockNotiManager.passedTitle;
+
+        assertNotNull(actual);
+    }
+
     private static class MockTodoRepository extends TodoRepository {
 
         private static Todo passedTodo;
@@ -248,6 +275,19 @@ public class TodoManagerCreateTest {
             return todo;
         }
 
+    }
+
+    private static class MockNotiManager extends NotiManager {
+        private static String passedTitle;
+        private static Exception exception;
+
+        public void notify(String title) throws RuntimeException {
+            passedTitle = title;
+
+            if(exception != null) {
+                throw new RuntimeException("뭔가 잘못됐어요!!!");
+            }
+        }
     }
 
 
