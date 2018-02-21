@@ -43,6 +43,12 @@ public class TodoManagerTest {
         public TodoRepository todoRepository() {
             return new MockTodoRepository();
         }
+
+        @Bean
+        @Primary
+        public NotiManager notiManager() {
+            return new MockNotiManager();
+        }
     }
 
 
@@ -228,23 +234,121 @@ public class TodoManagerTest {
         todoManager.create(todo);
     }
 
+    @Test
+    public void NotiManager_notify_TodoRepository_store_호출_성공_후_notify_호출하는지_확인() throws Exception {
+        String TITLE = "TITLE";
+        String CONTENT = "CONTENT";
+
+        Todo todo = new Todo();
+        todo.setTitle(TITLE);
+        todo.setContent(CONTENT);
+
+        todoManager.create(todo);
+
+        boolean isSuccessStore = MockTodoRepository.isSuccess;
+        boolean isCalledNotify = MockNotiManager.isCalled; // <------------------
+        Todo actual = MockTodoRepository.passedTodo;
+
+        assertTrue(isSuccessStore); // <------------------
+        assertTrue(isCalledNotify); // <------------------
+
+        assertNotNull(actual);
+        assertEquals(TITLE, actual.getTitle());
+        assertEquals(CONTENT, actual.getContent());
+    }
+
+    @Test
+    public void NotiManager_notify_TodoRepository_store_호출_실패_시_notify_호출_안하는지_확인() throws Exception {
+        String TITLE = "TITLE";
+        String CONTENT = "CONTENT";
+
+        Todo todo = new Todo();
+        todo.setTitle(TITLE);
+        todo.setContent(CONTENT);
+
+        MockTodoRepository.exception = new RuntimeException();
+
+        try {
+            todoManager.create(todo);
+        } catch (RuntimeException ignored) {
+            // must be thrown, then ignore it
+        }
+
+        boolean isSuccessStore = MockTodoRepository.isSuccess;
+        boolean isCalledNotify = MockNotiManager.isCalled; // <------------------
+        Todo actual = MockTodoRepository.passedTodo;
+
+        assertFalse(isSuccessStore); // <------------------
+        assertFalse(isCalledNotify); // <------------------
+
+        assertNotNull(actual);
+        assertEquals(TITLE, actual.getTitle());
+        assertEquals(CONTENT, actual.getContent());
+    }
+
+    @Test
+    public void NotiManager_notify_호츨_후_RuntimeException_날때_무시하는지_확인() throws Exception {
+        String TITLE = "TITLE";
+        String CONTENT = "CONTENT";
+
+        Todo todo = new Todo();
+        todo.setTitle(TITLE);
+        todo.setContent(CONTENT);
+
+        MockNotiManager.exception = new RuntimeException(); // <------------------
+
+        todoManager.create(todo);
+
+        boolean isSuccessStore = MockTodoRepository.isSuccess;
+        boolean isCalledNotify = MockNotiManager.isCalled;
+        boolean isSuccessNotify = MockNotiManager.isSuccess; // <------------------
+        Todo actual = MockTodoRepository.passedTodo;
+
+        assertTrue(isSuccessStore);
+        assertTrue(isCalledNotify);
+        assertFalse(isSuccessNotify);
+
+        assertNotNull(actual);
+        assertEquals(TITLE, actual.getTitle());
+        assertEquals(CONTENT, actual.getContent());
+    }
+
     private static class MockTodoRepository extends TodoRepository {
 
         private static Todo passedTodo;
         private static Exception exception;
+        private static boolean isSuccess = false;
 
         @Override
         public Todo store(Todo todo) throws IllegalArgumentException, RepositoryFailedException {
             passedTodo = todo;
 
+
             if(exception!=null && exception.getClass()==IllegalArgumentException.class) { throw (IllegalArgumentException)exception; }
             if(exception!=null && exception.getClass()==RepositoryFailedException.class) { throw (RepositoryFailedException)exception; }
             if(exception!=null && exception.getClass()==RuntimeException.class) { throw (RuntimeException)exception; }
+
+            isSuccess = true;
 
             return todo;
         }
 
     }
 
+    private static class MockNotiManager extends NotiManager {
+        private static String passedTitle;
+        private static boolean isCalled = false;
+        private static boolean isSuccess = false;
+        private static Exception exception;
 
+        @Override
+        public void notify(String title) {
+            isCalled = true;
+            passedTitle = title;
+
+            if(exception!=null && exception.getClass()==RuntimeException.class) { throw (RuntimeException)exception; }
+
+            isSuccess = true;
+        }
+    }
 }
