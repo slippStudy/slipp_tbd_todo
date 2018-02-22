@@ -17,6 +17,8 @@ public class TodoManager {
     @Autowired
     private TodoRepository todoRepository;
 
+    @Autowired
+    private NotiManager notiManager;
 
     public void create(Todo todo) {
 
@@ -29,6 +31,7 @@ public class TodoManager {
         } catch (RepositoryFailedException e) {
             throw new RuntimeException(e);
         }
+        notiManager.notify(todo.getTitle());
     }
 
     private void validate(Todo todo) {
