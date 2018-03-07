@@ -1,6 +1,5 @@
 package net.slipp.todo_list;
 
-import net.slipp.exception.RepositoryFailedException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,7 +11,12 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import static org.junit.Assert.*;
+import net.slipp.exception.RepositoryFailedException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -23,6 +27,8 @@ public class TodoManagerTest {
     public void setUp() throws Exception {
         MockTodoRepository.passedTodo = null;
         MockTodoRepository.exception = null;
+        MockNotiManager.passedTitle = MockNotiManager.DEFAULT_PASSED_TITLE;
+        MockNotiManager.exception = null;
     }
 
     @After
@@ -141,7 +147,6 @@ public class TodoManagerTest {
 
         String resTitle = MockNotiManager.passedTitle;
         assertEquals(MockNotiManager.DEFAULT_PASSED_TITLE, resTitle);    // <---------------------------------
-
     }
 
     @Test
@@ -304,6 +309,57 @@ public class TodoManagerTest {
 
         todoManager.create(todo);
     }
+
+    @Test
+    public void title에_SPAM_문자열이_포함되어있을때_예외없이_TODO_생성안되는지_확인 () {
+        String TITLE = "TITLE" + TodoManager.STR_SPAM;
+        String CONTENT = "CONTENT";
+
+        Todo todo = new Todo();
+        todo.setTitle(TITLE);
+        todo.setContent(CONTENT);
+        todoManager.create(todo);
+
+        assertNull(MockTodoRepository.passedTodo);
+    }
+
+    @Test
+    public void title이_JIRA_문자열로_시작할때_Noti_안되는지_확인 () {
+        // 제목이 “[JIRA]” 로 시작되는 경우는 noti 하지 않도록.
+
+        String TITLE = TodoManager.STR_JIRA + "TITLE";
+        String CONTENT = "CONTENT";
+
+        Todo todo = new Todo();
+        todo.setTitle(TITLE);
+        todo.setContent(CONTENT);
+        todoManager.create(todo);
+
+        Todo actual = MockTodoRepository.passedTodo;
+
+        assertEquals(todo, actual);
+        assertEquals(MockNotiManager.passedTitle, MockNotiManager.DEFAULT_PASSED_TITLE);
+    }
+
+    @Test
+    public void title이_JIRA_문자열로_시작하지만_URGENT를_포함하면_Noti_되는지_확인 () {
+        // 제목이 “[JIRA]” 로 시작되는 경우는 noti 하지 않도록.
+
+        String TITLE = TodoManager.STR_JIRA + "TITLE" + TodoManager.STR_URGENT;
+        String CONTENT = "CONTENT";
+
+        Todo todo = new Todo();
+        todo.setTitle(TITLE);
+        todo.setContent(CONTENT);
+        todoManager.create(todo);
+
+        Todo actual = MockTodoRepository.passedTodo;
+
+        assertEquals(todo, actual);
+        assertEquals(TITLE, MockNotiManager.passedTitle);
+    }
+
+//    제목이 “URGENT” 문자열을 포함하면 급한걸로 판단.
 
     private static class MockTodoRepository extends TodoRepository {
 
