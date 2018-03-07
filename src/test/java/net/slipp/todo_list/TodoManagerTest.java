@@ -305,6 +305,26 @@ public class TodoManagerTest {
         todoManager.create(todo);
     }
 
+    @Test
+    public void TodoRepository에서_실패하면_던져지는_예외에_cuase가_안담긴_버그_픽스(){
+
+        String TITLE = "TITLE";
+        String CONTENT = "CONTENT";
+
+        Todo todo = new Todo();
+        todo.setTitle(TITLE);
+        todo.setContent(CONTENT);
+
+        MockTodoRepository.exception = new RepositoryFailedException();
+
+        try{
+            todoManager.create(todo);
+        } catch (RuntimeException e){
+            assertNotNull(e.getCause());
+        }
+
+    }
+
     private static class MockTodoRepository extends TodoRepository {
 
         private static Todo passedTodo;
