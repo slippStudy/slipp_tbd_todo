@@ -354,10 +354,10 @@ public class TodoManagerTest {
 
         @Override
         public void notify(String title) throws RuntimeException {
+            passedTitle = title;
 
             if(exception!=null && exception.getClass()==RuntimeException.class) { throw (RuntimeException)exception; }
 
-            passedTitle = title;
         }
     }
 }
