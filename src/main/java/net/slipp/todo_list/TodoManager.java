@@ -30,16 +30,20 @@ public class TodoManager {
 
             todoRepository.store(todo);
 
-            try{
-                notiManager.notify(todo.getTitle());
-            } catch (RuntimeException e){
-                //ignore
-            }
+            notify_silently(todo.getTitle());
 
         } catch (RepositoryFailedException e) {
             throw new RuntimeException(e);
         }
 
+    }
+
+    private void notify_silently(String notiMessage) {
+        try{
+            notiManager.notify(notiMessage);
+        } catch (RuntimeException e){
+            //ignore
+        }
     }
 
     private void validate(Todo todo) {

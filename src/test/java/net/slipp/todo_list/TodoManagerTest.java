@@ -140,7 +140,7 @@ public class TodoManagerTest {
         }
 
         String resTitle = MockNotiManager.passedTitle;
-        assertEquals(NotiManager.EMPTY_STRING, resTitle);    // <---------------------------------
+        assertEquals(MockNotiManager.DEFAULT_PASSED_TITLE, resTitle);    // <---------------------------------
 
     }
 
@@ -325,8 +325,9 @@ public class TodoManagerTest {
 
     private static class MockNotiManager extends NotiManager {
 
+        private static String DEFAULT_PASSED_TITLE = "";
         private static Exception exception;
-        private static String passedTitle = NotiManager.EMPTY_STRING;
+        private static String passedTitle = DEFAULT_PASSED_TITLE;
 
         @Override
         public void notify(String title) throws RuntimeException {
