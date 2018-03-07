@@ -305,6 +305,29 @@ public class TodoManagerTest {
         todoManager.create(todo);
     }
 
+    @Test
+    public void TodoRepository_store_호출_시에_Exception을_던지면_TodoManager_Create_에서_cause_포함하는지_확인 () {
+        String TITLE = "TITLE";
+        String CONTENT = "CONTENT";
+
+        Todo todo = new Todo();
+        todo.setTitle(TITLE);
+        todo.setContent(CONTENT);
+
+        MockTodoRepository.exception = new RuntimeException();
+
+        RuntimeException todoManangerException = null;
+
+        try {
+            todoManager.create(todo);
+        } catch (RuntimeException e) {
+            todoManangerException = e;
+        }
+
+        assertNotNull(todoManangerException);
+        assertNotNull(todoManangerException.getCause());
+    }
+
     private static class MockTodoRepository extends TodoRepository {
 
         private static Todo passedTodo;
