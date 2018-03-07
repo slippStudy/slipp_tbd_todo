@@ -27,7 +27,7 @@ public class TodoManager {
         try {
             todoRepository.store(todo);
         } catch (RepositoryFailedException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException();
         }
     }
 
