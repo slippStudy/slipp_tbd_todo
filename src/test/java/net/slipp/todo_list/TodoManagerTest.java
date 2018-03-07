@@ -314,7 +314,7 @@ public class TodoManagerTest {
         todo.setTitle(TITLE);
         todo.setContent(CONTENT);
 
-        MockTodoRepository.exception = new RuntimeException();
+        MockTodoRepository.exception = new RepositoryFailedException();
 
         RuntimeException todoManangerException = null;
 
