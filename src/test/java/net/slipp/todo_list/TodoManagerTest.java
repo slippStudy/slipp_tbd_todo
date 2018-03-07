@@ -290,6 +290,27 @@ public class TodoManagerTest {
         todoManager.create(todo);
     }
 
+    @Test
+    public void TodoRepository_store_호출_시에_RepositoryFailedException을_던지면_RepositoryFailedException을_cause로하는_Exception을_던지는지_확인 () {
+        String TITLE = "TITLE";
+        String CONTENT = "CONTENT";
+
+        Todo todo = new Todo();
+        todo.setTitle(TITLE);
+        todo.setContent(CONTENT);
+
+
+        MockTodoRepository.exception = new RepositoryFailedException();
+
+        try {
+            todoManager.create(todo);
+            fail();
+        } catch (Exception e) {
+            assertNotNull(e.getCause());
+            assertTrue(e.getCause() instanceof RepositoryFailedException);
+        }
+    }
+
     @Test(expected = RuntimeException.class)
     public void TodoRepository_store_호출_시에_RuntimeException을_던지면_그대로_RuntimeException_던지는_지_확인 () {
         String TITLE = "TITLE";
