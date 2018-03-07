@@ -36,6 +36,9 @@ public class TodoManagerTest {
     @Autowired
     private TodoManager todoManager;
 
+    @Autowired
+    private NotiManager notiManager;
+
     @Configurable
     public static class MockBeanConfig {
         @Bean
@@ -43,11 +46,17 @@ public class TodoManagerTest {
         public TodoRepository todoRepository() {
             return new MockTodoRepository();
         }
+
+        @Bean
+        @Primary
+        public NotiManager notiManager() {
+            return new MockNotiManager();
+        }
     }
 
 
     @Test
-    public void 전달받은_Todo를_TodoRepository_store에_전달하는_지_확인 () {
+    public void 전달받은_Todo를_TodoManager_create가_정상_동작하는지_확인 () {
 
         String TITLE = "TITLE";
         String CONTENT = "CONTENT";
@@ -64,6 +73,74 @@ public class TodoManagerTest {
         assertEquals(TITLE, actual.getTitle());
         assertEquals(CONTENT, actual.getContent());
 
+
+    }
+
+    @Test
+    public void TodoManager_Create_정상_수행시_notify호출시_RuntimeException을_무시하는지_확인(){
+
+        String TITLE = "TITLE";
+        String CONTENT = "CONTENT";
+
+        Todo todo = new Todo();
+        todo.setTitle(TITLE);
+        todo.setContent(CONTENT);
+
+        MockNotiManager.exception = new RuntimeException();     // <------------------- NotiManager에 Exception을 던짐
+
+        todoManager.create(todo);
+
+        Todo actual = MockTodoRepository.passedTodo;
+
+        assertNotNull(actual);
+        assertEquals(TITLE, actual.getTitle());
+        assertEquals(CONTENT, actual.getContent());
+
+    }
+
+    @Test
+    public void TodoManager_Create_정상_수행_후_notify호출이_정상적으로_호출되는지_확인(){
+
+        String TITLE = "TITLE";
+        String CONTENT = "CONTENT";
+
+        Todo todo = new Todo();
+        todo.setTitle(TITLE);
+        todo.setContent(CONTENT);
+
+        todoManager.create(todo);
+
+        Todo actual = MockTodoRepository.passedTodo;
+        String resTitle = MockNotiManager.passedTitle;
+
+        assertNotNull(actual);
+        assertEquals(TITLE, actual.getTitle());
+        assertEquals(CONTENT, actual.getContent());
+
+        assertEquals(todo.getTitle(), resTitle);    // <---------------------------------
+
+    }
+
+    @Test
+    public void TodoManager_Create_에서_Exception발생시_NotiManager_notify가_실행안되는지_확인(){
+
+        String TITLE = "TITLE";
+        String CONTENT = "CONTENT";
+
+        Todo todo = new Todo();
+        todo.setTitle(TITLE);
+        todo.setContent(CONTENT);
+
+        MockTodoRepository.exception = new RuntimeException();
+
+        try {
+            todoManager.create(todo);
+        } catch( RuntimeException e ){
+            //ignore
+        }
+
+        String resTitle = MockNotiManager.passedTitle;
+        assertEquals(MockNotiManager.DEFAULT_PASSED_TITLE, resTitle);    // <---------------------------------
 
     }
 
@@ -246,5 +323,18 @@ public class TodoManagerTest {
 
     }
 
+    private static class MockNotiManager extends NotiManager {
 
+        private static String DEFAULT_PASSED_TITLE = "";
+        private static Exception exception;
+        private static String passedTitle = DEFAULT_PASSED_TITLE;
+
+        @Override
+        public void notify(String title) throws RuntimeException {
+
+            if(exception!=null && exception.getClass()==RuntimeException.class) { throw (RuntimeException)exception; }
+
+            passedTitle = title;
+        }
+    }
 }
