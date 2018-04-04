@@ -1,7 +1,6 @@
 package net.slipp.todo_list;
 
 import net.slipp.exception.DisallowWordIncludeTitleException;
-import net.slipp.exception.JiraCalledTodoException;
 import net.slipp.exception.RepositoryFailedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -26,13 +25,12 @@ public class TodoManager {
 
     public void create(Todo todo) {
 
-    		try {
-    			
-    			validate(todo);
-    			
-    		} catch (DisallowWordIncludeTitleException dwte) {
-    			return;	//ignore
-    		}
+    	    try {
+    	        validate(todo);
+    	        
+    	    } catch (DisallowWordIncludeTitleException dwte) {
+    	        return;	//ignore
+    	    }
         
 
         todo.setId(ID_BEFORE_CREATE);
@@ -50,31 +48,26 @@ public class TodoManager {
     }
 
     private void notify_silently(String notiMessage) {
-    	
-    		try {
-    			
-    			validNotify(notiMessage);
-    			
-    		} catch (JiraCalledTodoException jcte) {
-    			return;
-    		}
-    	
+    	    
+    	    if (!isUrgent(notiMessage) && isJiraCalled(notiMessage)) {
+    	    	    return;
+    	    }
+    	    
         try{
             notiManager.notify(notiMessage);
         } catch (RuntimeException e){
             //ignore
         }
     }
-
-    private void validNotify(String notiMessage) {
-		if (notiMessage.contains(URGENT_STRING)) {
-			return;
-		}
-		if (notiMessage.startsWith(JIRA_TITLE_PREFIX)) {
-			throw new JiraCalledTodoException();
-		}
-	}
-
+    
+    private boolean isUrgent(String notiMessage) {
+    	    return notiMessage.contains(URGENT_STRING);
+    }
+    
+    private boolean isJiraCalled(String notiMessage) {
+    	    return notiMessage.startsWith(JIRA_TITLE_PREFIX);
+    }
+    
 	private void validate(Todo todo) {
         if(todo == null) {
             throw new IllegalArgumentException("todo is null");
@@ -97,7 +90,7 @@ public class TodoManager {
         }
         
         if(todo.getTitle().contains(DISALLOW_TITLE_INCLUDE_WORD)) {
-        		throw new DisallowWordIncludeTitleException();
+        	    throw new DisallowWordIncludeTitleException();
         }
     }
 

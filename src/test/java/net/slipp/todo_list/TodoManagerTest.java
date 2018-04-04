@@ -311,49 +311,49 @@ public class TodoManagerTest {
     @Test
     public void SPAM이_들어간_제목인_경우_Todo가_생성되서는_안되는지_확인 () {
     	
-    		String TITLE = "titleSPAMtitle";
-    		String CONTENT = "CONTENT";
-    		
-    		Todo todo = new Todo();
-    		todo.setTitle(TITLE);
-    		todo.setContent(CONTENT);
-    		
-    		todoManager.create(todo);
-    		
-    		Todo actual = MockTodoRepository.passedTodo;
-    		
-    		assertNull(actual);
+    	    String TITLE = "titleSPAMtitle";
+    	    String CONTENT = "CONTENT";
+    	
+    	    Todo todo = new Todo();
+    	    todo.setTitle(TITLE);
+    	    todo.setContent(CONTENT);
+    	
+    	    todoManager.create(todo);
+    	    
+    	    Todo actual = MockTodoRepository.passedTodo;
+    	
+    	    assertNull(actual);
     }
 
     @Test
     public void jira에서_호출된_Todo의_경우_noti하지_말아달라_확인 () {
     	
-    		String TITLE = "[JIRA] TITLE";
-    		String CONTENT = "CONTENT";
-    		
-    		Todo todo = new Todo();
-    		todo.setTitle(TITLE);
-    		todo.setContent(CONTENT);
-    		
-    		todoManager.create(todo);
-    		
-    		String resTitle = MockNotiManager.passedTitle;
-    		assertNull(resTitle);
+    	    String TITLE = "[JIRA] TITLE";
+    	    String CONTENT = "CONTENT";
+    	
+    	    Todo todo = new Todo();
+    	    todo.setTitle(TITLE);
+    	    todo.setContent(CONTENT);
+    	 
+    	    todoManager.create(todo);
+    	
+    	    String resTitle = MockNotiManager.passedTitle;
+    	    assertNull(resTitle);
     }
     
     @Test
     public void Jira에서_호출되더라도_급한건_noti해달라_확인 () {
-    		String TITLE = "[JIRA] TITLE URGENT blah";
-    		String CONTENT = "CONTENT";
-    		
-    		Todo todo = new Todo();
-    		todo.setTitle(TITLE);
-    		todo.setContent(CONTENT);
-    		
-    		todoManager.create(todo);
-    		
-    		String resTitle = MockNotiManager.passedTitle;
-    		assertEquals(todo.getTitle(), resTitle);
+    	    String TITLE = "[JIRA] TITLE URGENT blah";
+    	    String CONTENT = "CONTENT";
+    	
+    	    Todo todo = new Todo();
+    	    todo.setTitle(TITLE);
+    	    todo.setContent(CONTENT);
+    	
+    	    todoManager.create(todo);
+    	
+    	    String resTitle = MockNotiManager.passedTitle;
+    	    assertEquals(todo.getTitle(), resTitle);
     }
 
     private static class MockTodoRepository extends TodoRepository {
