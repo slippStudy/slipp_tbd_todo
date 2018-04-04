@@ -290,6 +290,25 @@ public class TodoManagerTest {
         todoManager.create(todo);
     }
 
+    @Test
+    public void Repository에_저장_실패라면_던져지는_예외에_CAUSE가_안담기는_버그_픽스() {
+        String TITLE = "TITLE";
+        String CONTENT = "CONTENT";
+
+        Todo todo = new Todo();
+        todo.setTitle(TITLE);
+        todo.setContent(CONTENT);
+
+        MockTodoRepository.exception = new RepositoryFailedException();
+
+        try {
+            todoManager.create(todo);
+        } catch (RuntimeException e) {
+            assertNotNull(e.getCause());
+        }
+
+    }
+
     @Test(expected = RuntimeException.class)
     public void TodoRepository_store_호출_시에_RuntimeException을_던지면_그대로_RuntimeException_던지는_지_확인 () {
         String TITLE = "TITLE";
