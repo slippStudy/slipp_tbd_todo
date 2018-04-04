@@ -1,7 +1,7 @@
 package net.slipp.todo_list;
 
 import net.slipp.exception.IlligalTodoException;
-import net.slipp.exception.NotNotiException;
+import net.slipp.exception.NotiFailedException;
 import net.slipp.exception.RepositoryFailedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -36,33 +36,31 @@ public class TodoManager {
 
     try {
       todoRepository.store(todo);
-      notify_silently(todo.getTitle());
 
-    } catch (RepositoryFailedException e) {
-      throw new RuntimeException();
+    } catch (RepositoryFailedException rfe) {
+      throw new RuntimeException(rfe);
     }
+    notify_silently(todo.getTitle());
 
   }
 
   private void notify_silently(String notiMessage) {
-    try {
-      notiValidate(notiMessage);
-    } catch (NotNotiException e) {
-      return;
-    }
-    try {
-      notiManager.notify(notiMessage);
+    if(isValidNoti(notiMessage)){
+      try {
+        notiManager.notify(notiMessage);
 
 
-    } catch (RuntimeException e) {
-      //ignore
+      } catch (RuntimeException e) {
+        //ignore
+      }
     }
   }
 
-  private void notiValidate(String title) throws NotNotiException {
+  private boolean isValidNoti(String title) {
     if (title.startsWith(JIRA_STRING) && !title.contains(URGENT_STRING)) {
-      throw new NotNotiException();
+      return false;
     }
+    return true;
   }
 
   private void validate(Todo todo) throws IlligalTodoException {
@@ -87,7 +85,7 @@ public class TodoManager {
     }
 
     if (todo.getTitle().contains(SPAM_STRING)) {
-      throw new IlligalTodoException();
+      throw new IlligalTodoException("SPAM 메시자가 포함된 경우, todo를 등록할 수 없습니다.");
     }
 
   }
