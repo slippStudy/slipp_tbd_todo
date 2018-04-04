@@ -1,5 +1,6 @@
 package net.slipp.todo_list;
 
+import net.slipp.exception.DisallowWordIncludeTitleException;
 import net.slipp.exception.RepositoryFailedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -8,10 +9,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class TodoManager {
 
-
     static final String EMPTY_STRING = "";
     static final String DEFAULT_TITLE = EMPTY_STRING;
-
+    static final String DISALLOW_TITLE_INCLUDE_WORD = "SPAM";
+    static final String JIRA_TITLE_PREFIX = "[JIRA]";
+    static final String URGENT_STRING = "URGENT";
+    
     private static final int ID_BEFORE_CREATE = -1;
 
     @Autowired
@@ -22,7 +25,13 @@ public class TodoManager {
 
     public void create(Todo todo) {
 
-        validate(todo);
+    	    try {
+    	        validate(todo);
+    	        
+    	    } catch (DisallowWordIncludeTitleException dwte) {
+    	        return;	//ignore
+    	    }
+        
 
         todo.setId(ID_BEFORE_CREATE);
 
@@ -39,14 +48,27 @@ public class TodoManager {
     }
 
     private void notify_silently(String notiMessage) {
+    	    
+    	    if (!isUrgent(notiMessage) && isJiraCalled(notiMessage)) {
+    	    	    return;
+    	    }
+    	    
         try{
             notiManager.notify(notiMessage);
         } catch (RuntimeException e){
             //ignore
         }
     }
-
-    private void validate(Todo todo) {
+    
+    private boolean isUrgent(String notiMessage) {
+    	    return notiMessage.contains(URGENT_STRING);
+    }
+    
+    private boolean isJiraCalled(String notiMessage) {
+    	    return notiMessage.startsWith(JIRA_TITLE_PREFIX);
+    }
+    
+	private void validate(Todo todo) {
         if(todo == null) {
             throw new IllegalArgumentException("todo is null");
         }
@@ -65,6 +87,10 @@ public class TodoManager {
 
         if(todo.getContent().length() >= 500) {
             throw new IllegalArgumentException("content 길이는 500자 이상일 수 없습니다.");
+        }
+        
+        if(todo.getTitle().contains(DISALLOW_TITLE_INCLUDE_WORD)) {
+        	    throw new DisallowWordIncludeTitleException();
         }
     }
 
