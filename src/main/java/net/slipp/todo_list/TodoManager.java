@@ -33,7 +33,7 @@ public class TodoManager {
             notify_silently(todo.getTitle());
 
         } catch (RepositoryFailedException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Repository에 저장이 실패하였습니다", e);
         }
 
     }
