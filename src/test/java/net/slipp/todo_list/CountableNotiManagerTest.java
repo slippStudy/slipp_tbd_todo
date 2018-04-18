@@ -15,7 +15,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {AppConfig.class, CountableNotiManagerTest.MockBeanConfig.class})
+@ContextConfiguration(classes = {CountableNotiManagerTest.MockBeanConfig.class, AppConfig.class})
 public class CountableNotiManagerTest {
 
   @Configurable
