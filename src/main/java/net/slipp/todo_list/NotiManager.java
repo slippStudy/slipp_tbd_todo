@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class NotiManager {
 
-    public void notify( String title ) throws RuntimeException {}
+    public void notify(String message) throws RuntimeException {
+    }
 
 }
