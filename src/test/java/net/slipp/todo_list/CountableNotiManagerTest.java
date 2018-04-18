@@ -15,19 +15,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {CountableNotiManagerTest.MockBeanConfig.class, AppConfig.class})
+@ContextConfiguration(classes = {AppConfig.class})
 public class CountableNotiManagerTest {
-
-  @Configurable
-  public static class MockBeanConfig {
-
-    @Bean
-    @Primary
-    public CountableNotiManager countableNotiManager() {
-      return new CountableNotiManager();
-    }
-  }
-
   @Autowired
   private TodoManager todoManager;
   @Autowired
