@@ -37,9 +37,13 @@ public class CountableNotiManagerTest extends TodoListApplicationTests {
         todo.setContent(CONTENT);
 
         todoManager.create(todo);
+        assertEquals(1, countableNotiManager.getCount());
         todoManager.create(todo);
+        assertEquals(2, countableNotiManager.getCount());
         todoManager.create(todo);
+        assertEquals(3, countableNotiManager.getCount());
         todoManager.create(todo);
+        assertEquals(4, countableNotiManager.getCount());
         todoManager.create(todo);
         assertEquals(5, countableNotiManager.getCount());
     }
