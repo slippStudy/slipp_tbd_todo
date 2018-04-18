@@ -23,6 +23,9 @@ public class TodoManager {
     @Autowired
     private NotiManager notiManager;
 
+    @Autowired
+    private CountableNotiManager countableNotiManager;
+
     public void create(Todo todo) {
 
     	    try {
@@ -36,11 +39,11 @@ public class TodoManager {
         todo.setId(ID_BEFORE_CREATE);
 
         try {
-
             todoRepository.store(todo);
 
             notify_silently(todo.getTitle());
 
+            // countableNotiManager.notify(todo.getTitle());
         } catch (RepositoryFailedException e) {
             throw new RuntimeException("Repository에 저장이 실패하였습니다", e);
         }
