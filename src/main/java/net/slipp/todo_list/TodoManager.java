@@ -47,6 +47,14 @@ public class TodoManager {
 
     }
 
+    public void delete(Todo todo) {
+        try {
+            todoRepository.store(todo, true);
+        } catch (IllegalArgumentException iae) {
+            throw new RuntimeException("존재하지 않는 todo 입니다.", iae);
+        }
+    }
+
     private void notify_silently(String notiMessage) {
     	    
     	    if (!isUrgent(notiMessage) && isJiraCalled(notiMessage)) {

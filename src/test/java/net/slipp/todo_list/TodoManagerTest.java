@@ -374,10 +374,49 @@ public class TodoManagerTest {
     	    String resTitle = MockNotiManager.passedTitle;
     	    assertEquals(todo.getTitle(), resTitle);
     }
+    
+    @Test(expected = RuntimeException.class)
+    public void TodoManager_delete에서_존재하지_않는_todo_삭제_시도하면_IllegalArgumentException_잡아서_RuntimeException으로_던지는지_확인() {
+
+        String TITLE = "TITLE";
+        String CONTENT = "CONTENT";
+
+        Todo todo = new Todo();
+        todo.setTitle(TITLE);
+        todo.setContent(CONTENT);
+        todo.setId(100);
+        MockTodoRepository.passedTodo = todo;
+
+        Todo deleteTargetTodo = new Todo();
+        deleteTargetTodo.setTitle(TITLE);
+        deleteTargetTodo.setContent(CONTENT);
+        deleteTargetTodo.setId(101);
+
+        todoManager.delete(deleteTargetTodo);
+    }
+
+    @Test
+    public void TodoManager_delete에서_정상적으로_삭제되는경우() {
+        String TITLE = "TITLE";
+        String CONTENT = "CONTENT";
+
+        Todo todo = new Todo();
+        todo.setTitle(TITLE);
+        todo.setContent(CONTENT);
+
+        MockTodoRepository.passedTodo = todo;
+
+        todoManager.delete(todo);
+
+        assertEquals(todo, MockTodoRepository.passedDeleteTargetTodo);
+        assertEquals(true, MockTodoRepository.passedShouldDelete);
+    }
 
     private static class MockTodoRepository extends TodoRepository {
 
         private static Todo passedTodo;
+        private static Todo passedDeleteTargetTodo;
+        private static boolean passedShouldDelete;
         private static Exception exception;
 
         @Override
@@ -391,6 +430,22 @@ public class TodoManagerTest {
             return todo;
         }
 
+        @Override
+        public Todo store(Todo todo, boolean shouldDelete) throws IllegalArgumentException {
+            passedDeleteTargetTodo = todo;
+            passedShouldDelete = shouldDelete;
+            if (!shouldDelete) {
+                return null;
+            }
+            if (exception != null && exception.getClass() == IllegalArgumentException.class) {
+                throw (IllegalArgumentException)exception;
+            }
+            if (passedTodo == null || passedTodo.getId() != todo.getId()) {
+                throw new IllegalArgumentException();
+            }
+            passedTodo = null;
+            return null;
+        }
     }
 
     private static class MockNotiManager extends NotiManager {
