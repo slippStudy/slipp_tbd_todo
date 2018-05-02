@@ -396,27 +396,6 @@ public class TodoManagerTest {
     }
 
     @Test
-    public void TodoManager_delete에서_todo의_id를_기준으로_삭제하는지_확인() {
-        String TITLE = "TITLE";
-        String CONTENT = "CONTENT";
-
-        Todo todo = new Todo();
-        todo.setTitle(TITLE);
-        todo.setContent(CONTENT);
-        todo.setId(100);
-        MockTodoRepository.passedTodo = todo;
-
-        Todo deleteTargetTodo = new Todo();
-        deleteTargetTodo.setTitle(TITLE);
-        deleteTargetTodo.setContent(CONTENT);
-        deleteTargetTodo.setId(100);
-
-        todoManager.delete(deleteTargetTodo);
-
-        assertNull(MockTodoRepository.passedTodo);
-    }
-
-    @Test
     public void TodoManager_delete에서_정상적으로_삭제되는경우() {
         String TITLE = "TITLE";
         String CONTENT = "CONTENT";
@@ -428,11 +407,16 @@ public class TodoManagerTest {
         MockTodoRepository.passedTodo = todo;
 
         todoManager.delete(todo);
+
+        assertEquals(todo, MockTodoRepository.passedDeleteTargetTodo);
+        assertEquals(true, MockTodoRepository.passedShouldDelete);
     }
 
     private static class MockTodoRepository extends TodoRepository {
 
         private static Todo passedTodo;
+        private static Todo passedDeleteTargetTodo;
+        private static boolean passedShouldDelete;
         private static Exception exception;
 
         @Override
@@ -448,6 +432,8 @@ public class TodoManagerTest {
 
         @Override
         public Todo store(Todo todo, boolean shouldDelete) throws IllegalArgumentException {
+            passedDeleteTargetTodo = todo;
+            passedShouldDelete = shouldDelete;
             if (!shouldDelete) {
                 return null;
             }
