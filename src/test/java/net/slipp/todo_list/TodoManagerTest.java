@@ -22,6 +22,7 @@ public class TodoManagerTest {
     @Before
     public void setUp() throws Exception {
         MockTodoRepository.passedTodo = null;
+        MockTodoRepository.passedShouldDelete = false;
         MockTodoRepository.exception = null;
         
         MockNotiManager.passedTitle = null;
@@ -375,10 +376,41 @@ public class TodoManagerTest {
     	    assertEquals(todo.getTitle(), resTitle);
     }
 
+    @Test
+    public void Todo_삭제요청시_Repository_삭제_store_가_호출되는지_확인() {
+        Todo todo = new Todo();
+        todo.setId(1);
+
+        todoManager.delete(todo);
+
+        Todo passedTodo = MockTodoRepository.passedTodo;
+        assertNotNull(passedTodo);
+        assertEquals(passedTodo.getId(), todo.getId());
+
+        boolean passedShouldDelete = MockTodoRepository.passedShouldDelete;
+        assertTrue(passedShouldDelete);
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void Todo_삭제요청시_Todo가_Null일경우_예외발생(){
+        todoManager.delete(null);
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void Todo_삭제요청시_Todo_id가_0일경우_예외발생(){
+
+        Todo todo = new Todo();
+        todo.setId(0);
+
+        todoManager.delete(todo);
+
+    }
+
     private static class MockTodoRepository extends TodoRepository {
 
         private static Todo passedTodo;
         private static Exception exception;
+        private static boolean passedShouldDelete;
 
         @Override
         public Todo store(Todo todo) throws IllegalArgumentException, RepositoryFailedException {
@@ -389,6 +421,15 @@ public class TodoManagerTest {
             if(exception!=null && exception.getClass()==RuntimeException.class) { throw (RuntimeException)exception; }
 
             return todo;
+        }
+
+        @Override
+        public Todo store(Todo todo, boolean shouldDelete) throws IllegalArgumentException {
+            passedTodo = todo;
+            passedShouldDelete = shouldDelete;
+
+            if(todo == null || todo.getId() <= 0) { throw (IllegalArgumentException)exception; }
+            return null;
         }
 
     }

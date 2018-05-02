@@ -94,4 +94,11 @@ public class TodoManager {
         }
     }
 
+    public void delete(Todo todo) {
+        try {
+            todoRepository.store(todo, true);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Repository에 삭제가 실패하였습니다", e);
+        }
+    }
 }
