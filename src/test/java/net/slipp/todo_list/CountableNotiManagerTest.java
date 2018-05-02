@@ -19,8 +19,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public class CountableNotiManagerTest {
   @Autowired
   private TodoManager todoManager;
+
   @Autowired
-  private CountableNotiManager countableNotiManager;
+  private NotiManager notiManager;
 
   @Before
   public void setUp() throws Exception {
@@ -39,9 +40,9 @@ public class CountableNotiManagerTest {
     todo.setTitle(TITLE);
     todo.setContent(CONTENT);
 
-    int previousNotiCount = countableNotiManager.getCallCount();
+    int previousNotiCount = ((CountableNotiManager)notiManager).getCallCount();
     todoManager.create(todo);
-    int afterNotiCount = countableNotiManager.getCallCount();
+    int afterNotiCount = ((CountableNotiManager)notiManager).getCallCount();
 
     assertEquals(afterNotiCount, previousNotiCount + 1);
   }

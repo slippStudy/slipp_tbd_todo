@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Primary;
 @ComponentScan(basePackages = {"net.slipp.todo_list"})
 public class AppConfig {
   @Bean
-  public NotiManager NotiManager() {
+  public NotiManager notiManager() {
     return new CountableNotiManager();
   }
 }
